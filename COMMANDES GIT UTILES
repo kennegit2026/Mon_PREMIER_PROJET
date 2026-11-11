@@ -4,4 +4,5 @@ git commit : permet d'envoyer le fichier dans la partie des versions
 git push : permet de mettre le fichier dans le dépôt distant github
 git pull : permet de recupérer le fichier modifié de github pour le mettre dans le dépôt local de notre machine
 git merge : permet de fusionner les branches ou d'en créer
-git branch : permet de lister les branchs ou d'en créer
+git branch : permet de lister les branchs ou d'en créert clone 
+git clone : permet de recupérer un dépôt dans githhub à partir du terminal via l'adresse https ou github ssh 
