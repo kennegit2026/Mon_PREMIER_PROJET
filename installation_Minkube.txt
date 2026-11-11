@@ -1,0 +1,77 @@
+Votre machine virtuelle est bien dimensionnée pour Minikube (4 processeurs, 8 Go de RAM) et Docker est déjà installé. On utilisera donc le **pilote Docker**, qui évite d'imbriquer une deuxième virtualisation dans VirtualBox.
+
+**1. Vérifier que Docker fonctionne sans `sudo`**
+
+```bash
+docker run --rm hello-world
+```
+
+Si vous voyez « permission denied », fermez votre session Ubuntu puis rouvrez-la. L'ajout au groupe `docker` n'est pris en compte qu'après une reconnexion.
+
+**2. Télécharger et installer Minikube**
+
+```bash
+curl -LO https://github.com/kubernetes/minikube/releases/latest/download/minikube-linux-amd64
+sudo install minikube-linux-amd64 /usr/local/bin/minikube
+rm minikube-linux-amd64
+minikube version
+```
+
+La dernière commande affiche la version installée.
+
+**3. Installer kubectl** (l'outil en ligne de commande pour piloter Kubernetes)
+
+```bash
+sudo snap install kubectl --classic
+kubectl version --client
+```
+
+**4. Démarrer Minikube**
+
+```bash
+minikube start --driver=docker
+```
+
+- Lancez cette commande avec votre utilisateur normal, **sans `sudo`**.
+- Le premier démarrage télécharge des images et peut prendre quelques minutes.
+- Pour utiliser Docker par défaut à l'avenir : `minikube config set driver docker`.
+
+**5. Vérifier que tout fonctionne**
+
+```bash
+minikube status
+kubectl get nodes
+```
+
+Vous devez voir `host: Running`, `kubelet: Running`, `apiserver: Running`, et un nœud `minikube` à l'état `Ready`.
+
+**6. Faire un premier test**
+
+```bash
+kubectl create deployment hello --image=nginx
+kubectl expose deployment hello --type=NodePort --port=80
+minikube service hello --url
+```
+
+La dernière commande affiche une adresse à ouvrir dans le navigateur de la machine virtuelle : vous devez voir la page d'accueil de Nginx. Nettoyez ensuite :
+
+```bash
+kubectl delete service hello
+kubectl delete deployment hello
+```
+
+**Commandes utiles**
+- `minikube stop` : arrêter le cluster (les données sont conservées)
+- `minikube start` : le redémarrer
+- `minikube delete` : le supprimer complètement
+- `minikube dashboard` : ouvrir l'interface web de Kubernetes
+- `minikube addons list` : voir les extensions disponibles (par exemple `minikube addons enable ingress`)
+- `minikube start --cpus=4 --memory=6144` : démarrer avec plus de ressources, à choisir à la création du cluster
+
+**Problèmes fréquents**
+- **« Exiting due to PROVIDER_DOCKER_NOT_RUNNING »** : vérifiez que Docker tourne avec `sudo systemctl status docker`.
+- **Erreur de permission sur Docker** : reconnectez-vous ou lancez `newgrp docker`, puis réessayez.
+- **Démarrage très lent ou échec** : vérifiez que la VM a bien au moins 2 processeurs et 4 Go de RAM. Si besoin, supprimez le cluster (`minikube delete`) et relancez.
+- **Espace disque** : Minikube utilise plusieurs Go. Vous pouvez vérifier avec `df -h`.
+
+Si une étape échoue, copiez-moi le message d'erreur ou envoyez une capture, et je vous aide.
